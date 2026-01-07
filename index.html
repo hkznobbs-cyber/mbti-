@@ -1,0 +1,1168 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { 
+  Heart, 
+  X, 
+  History, 
+  ArrowLeft,
+  Smile,
+  Meh,
+  Frown,
+  CloudRain,
+  Sun,
+  Sparkles,
+  CheckCircle2,
+  ChevronRight,
+  Send,
+  MessageCircle,
+  Clock,
+  Zap,
+  Star,
+  Wind,
+  Layers,
+  Target,
+  Trophy,
+  Activity,
+  Lightbulb,
+  Compass,
+  BookOpen,
+  Rocket,
+  Loader2,
+  Brain,
+  Layout,
+  Feather,
+  RefreshCcw,
+  ToggleLeft,
+  ToggleRight,
+  Battery,
+  Moon,
+  PenLine, 
+  Quote
+} from 'lucide-react';
+
+// --- Firebase Imports ---
+import { initializeApp } from 'firebase/app';
+import { 
+  getAuth, 
+  signInAnonymously, 
+  signInWithCustomToken,
+  onAuthStateChanged 
+} from 'firebase/auth';
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  collection, 
+  addDoc, 
+  onSnapshot, 
+  serverTimestamp,
+  query,
+  orderBy
+} from 'firebase/firestore';
+
+// --- Firebase Initialization ---
+const firebaseConfig = JSON.parse(__firebase_config);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'mbti-app-default';
+
+// --- 全局样式注入 ---
+const GlobalStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Inter:wght@400;600;800&display=swap');
+
+    :root {
+      --safe-top: env(safe-area-inset-top, 20px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+    .font-serif-sc {
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    .animate-gpu {
+      will-change: transform, opacity;
+      transform: translateZ(0); 
+    }
+
+    @keyframes aurora {
+      0% { transform: translate(-10%, -10%) rotate(0deg); }
+      50% { transform: translate(10%, 10%) rotate(180deg); }
+      100% { transform: translate(-10%, -10%) rotate(360deg); }
+    }
+    .animate-aurora {
+      animation: aurora 20s infinite linear;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(2deg); }
+    }
+    .animate-float {
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spin-slow 60s linear infinite;
+    }
+    @keyframes text-reveal {
+      0% { opacity: 0; transform: translateY(10px); filter: blur(5px); }
+      100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    .text-reveal-item {
+      display: inline-block;
+      animation: text-reveal 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+    }
+    .dark .glass-card {
+      background: rgba(17, 24, 39, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-card-hover:hover {
+      transform: translateY(-4px);
+    }
+    .dark .glass-card-hover:hover {
+      background: rgba(31, 41, 55, 0.8);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .trait-badge {
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .dark .trait-badge {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .pt-safe { padding-top: var(--safe-top); }
+    .pb-safe { padding-bottom: var(--safe-bottom); }
+  `}</style>
+);
+
+// --- Toast Component ---
+const Toast = ({ message, show, onClose }) => {
+  useEffect(() => {
+    if (show) {
+      const timer = setTimeout(onClose, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [show, onClose]);
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed top-10 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top-5 fade-in duration-300 pointer-events-none">
+      <div className="bg-slate-900/90 dark:bg-white/90 text-white dark:text-slate-900 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 backdrop-blur-md border border-white/10">
+        <CheckCircle2 size={18} className="text-emerald-400 dark:text-emerald-600" />
+        <span className="font-bold text-sm tracking-wide">{message}</span>
+      </div>
+    </div>
+  );
+};
+
+// --- QUOTES_DB (Expanded with Zen/Taoism/Mindfulness) ---
+const QUOTES_DB = {
+  SJ: [
+    // 守护者：秩序、知足、自然法则 (匹配 SJ 的稳定性)
+    { en: "Nature does not hurry, yet everything is accomplished.", zh: "大道至简，无为而无不为。（自然从不着急，却能完成一切。）", dict: { "hurry": "匆忙", "accomplished": "完成" }, perspective: "i", author: "Lao Tzu" },
+    { en: "He who is contented is rich.", zh: "知足者富。", dict: { "contented": "满足的" }, perspective: "you", author: "Lao Tzu" },
+    { en: "Be content with what you have; rejoice in the way things are.", zh: "安于现状，乐天知命。", dict: { "rejoice": "欣喜" }, perspective: "you", author: "Lao Tzu" },
+    { en: "Do your work, then step back. The only path to serenity.", zh: "功成身退，天之道也。", dict: { "serenity": "宁静" }, perspective: "i", author: "Lao Tzu" },
+    { en: "Consistency is the foundation of excellence.", zh: "坚持是卓越的基石。", dict: { "excellence": "卓越" }, perspective: "i" },
+    { en: "Order is the first law of heaven.", zh: "秩序是上天的第一条法则。", dict: { "heaven": "天堂" }, perspective: "you" },
+    { en: "My word is my bond.", zh: "我的承诺千金不换。", dict: { "bond": "纽带/契约" }, perspective: "i" },
+    { en: "Integrity is doing the right thing, even when no one is watching.", zh: "正直是在没人看见时也做正确的事。", dict: { "integrity": "正直" }, perspective: "i", author: "C.S. Lewis" },
+    { en: "History is a vast early warning system.", zh: "历史是一个巨大的早期预警系统。", dict: { "warning": "警告" }, perspective: "you", author: "Norman Cousins" }
+  ],
+  SP: [
+    // 技艺者：活在当下、顺应变化、禅宗行动 (匹配 SP 的即兴)
+    { en: "When you walk, walk. When you eat, eat.", zh: "走路时走路，吃饭时吃饭。（活在当下）", dict: { "walk": "走路" }, perspective: "you", author: "Zen Proverb" },
+    { en: "Empty your mind, be formless, shapeless — like water.", zh: "放空心思，无形无相，像水一样。", dict: { "formless": "无形的", "shapeless": "无状的" }, perspective: "you", author: "Bruce Lee" },
+    { en: "Flow with whatever may happen, and let your mind be free.", zh: "顺应万变，心无挂碍。", dict: { "flow": "流动/顺应" }, perspective: "i", author: "Zhuangzi" },
+    { en: "Sitting quietly, doing nothing, Spring comes, and the grass grows, by itself.", zh: "静坐无为，春来草自青。", dict: { "quietly": "静静地" }, perspective: "i", author: "Zen Haiku" },
+    { en: "Action is the foundational key to all success.", zh: "行动是成功的基石。", dict: { "action": "行动" }, perspective: "you", author: "Pablo Picasso" },
+    { en: "I live in the moment, for the moment.", zh: "我活在当下，为此刻而生。", dict: { "moment": "时刻" }, perspective: "i" },
+    { en: "Dance like nobody's watching.", zh: "像没人看见一样跳舞。", dict: { "dance": "跳舞" }, perspective: "you" },
+    { en: "Leap, and the net will appear.", zh: "纵身一跃，安全网自会出现。", dict: { "leap": "跳跃" }, perspective: "you", author: "John Burroughs" },
+    { en: "Just play. Have fun. Enjoy the game.", zh: "去玩，去开心，享受比赛。", dict: { "enjoy": "享受" }, perspective: "you", author: "Michael Jordan" }
+  ],
+  NF: [
+    // 理想主义者：慈悲、内心、连接、正念 (匹配 NF 的灵性)
+    { en: "To the mind that is still, the whole universe surrenders.", zh: "心静则万物归。", dict: { "surrenders": "投降/归顺" }, perspective: "i", author: "Lao Tzu" },
+    { en: "Compassion is not a relationship between the healer and the wounded. It's a relationship between equals.", zh: "慈悲不是治疗者与伤者的关系，而是平等的连接。", dict: { "compassion": "慈悲" }, perspective: "you", author: "Pema Chödrön" },
+    { en: "The way is not in the sky. The way is in the heart.", zh: "道不在天，道在心中。", dict: { "heart": "心" }, perspective: "i", author: "Buddha" },
+    { en: "Smile, breathe and go slowly.", zh: "微笑，呼吸，慢慢来。", dict: { "breathe": "呼吸" }, perspective: "you", author: "Thich Nhat Hanh" },
+    { en: "Your soul knows the way. Follow it.", zh: "你的灵魂知晓前路，追随它。", dict: { "soul": "灵魂" }, perspective: "you" },
+    { en: "Peace comes from within. Do not seek it without.", zh: "内心的平静源于内在，勿向外求。", dict: { "peace": "平静" }, perspective: "i", author: "Buddha" },
+    { en: "Mindfulness is a way of befriending our experience.", zh: "正念是一种与我们的经历做朋友的方式。", dict: { "mindfulness": "正念" }, perspective: "i", author: "Jon Kabat-Zinn" },
+    { en: "Where there is love there is life.", zh: "有爱的地方就有生命。", dict: { "love": "爱" }, perspective: "you", author: "Mahatma Gandhi" },
+    { en: "The wound is the place where the Light enters you.", zh: "伤口是光进入你身体的地方。", dict: { "wound": "伤口", "light": "光" }, perspective: "you", author: "Rumi" }
+  ],
+  NT: [
+    // 理性者：智慧、自知、真理 (匹配 NT 的求索)
+    { en: "Knowing others is intelligence; knowing yourself is true wisdom.", zh: "知人者智，自知者明。", dict: { "intelligence": "智慧/聪明", "wisdom": "大智慧" }, perspective: "you", author: "Lao Tzu" },
+    { en: "The truth is not always beautiful, nor beautiful words the truth.", zh: "信言不美，美言不信。", dict: { "truth": "真理" }, perspective: "i", author: "Lao Tzu" },
+    { en: "To know that you do not know is the best.", zh: "知之为知之，不知为不知，是知也。（知不知，上。）", dict: { "best": "最好的" }, perspective: "i", author: "Lao Tzu" },
+    { en: "Mastering others is strength. Mastering yourself is true power.", zh: "胜人者有力，自胜者强。", dict: { "mastering": "掌控", "power": "力量" }, perspective: "you", author: "Lao Tzu" },
+    { en: "I think, therefore I am.", zh: "我思故我在。", dict: { "think": "思考" }, perspective: "i", author: "René Descartes" },
+    { en: "Knowledge is power. Innovation is key.", zh: "知识就是力量，创新是关键。", dict: { "innovation": "创新" }, perspective: "i" },
+    { en: "The unexamined life is not worth living.", zh: "未经审视的人生不值得过。", dict: { "unexamined": "未经审查的" }, perspective: "i", author: "Socrates" },
+    { en: "First principles thinking is the only way to innovate.", zh: "第一性原理思维是创新的唯一途径。", dict: { "principles": "原理" }, perspective: "i", author: "Elon Musk" },
+    { en: "Change your thoughts and you change your world.", zh: "改变你的思想，你就改变了你的世界。", dict: { "thoughts": "思想" }, perspective: "you", author: "Norman Vincent Peale" }
+  ]
+};
+
+// --- MBTI Types Data ---
+const MBTI_TYPES = [
+  { 
+    id: 'INTJ', name: '建筑师', group: 'NT', 
+    color: 'from-indigo-600 via-purple-500 to-indigo-800', 
+    accent: 'bg-indigo-600', text: 'text-indigo-700', 
+    desc: '在宏大的视野中构建未来的蓝图。', 
+    traits: ['战略家', '独立', '理性', '高效'],
+    motivation: '系统的完善与智力的挑战',
+    energy: '深度独处与知识吸收',
+    image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'INTP', name: '逻辑学家', group: 'NT', 
+    color: 'from-blue-600 via-indigo-500 to-blue-800', 
+    accent: 'bg-blue-600', text: 'text-blue-700', 
+    desc: '不懈探索真理的智力隐士。', 
+    traits: ['分析力', '客观', '好奇', '原创'],
+    motivation: '对未知领域的逻辑拆解',
+    energy: '解决复杂问题与自由探索',
+    image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ENTJ', name: '指挥官', group: 'NT', 
+    color: 'from-violet-600 via-indigo-600 to-purple-800', 
+    accent: 'bg-violet-600', text: 'text-violet-700', 
+    desc: '天生的领袖，将障碍视为通往目标的台阶。', 
+    traits: ['果断', '领导力', '自信', '意志'],
+    motivation: '秩序的建立与目标的达成',
+    energy: '征服挑战与高效执行',
+    image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ENTP', name: '辩论家', group: 'NT', 
+    color: 'from-sky-600 via-blue-500 to-indigo-600', 
+    accent: 'bg-sky-600', text: 'text-sky-700', 
+    desc: '在思维的碰撞中寻找最纯粹的火花。', 
+    traits: ['机智', '敏捷', '挑战者', '博学'],
+    motivation: '创意的裂变与智力博弈',
+    energy: '头脑风暴与观点交锋',
+    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'INFJ', name: '提倡者', group: 'NF', 
+    color: 'from-emerald-600 via-teal-500 to-green-800', 
+    accent: 'bg-emerald-600', text: 'text-emerald-700', 
+    desc: '深邃的洞察者，用理想照亮现实。', 
+    traits: ['洞察力', '信念', '利他', '优雅'],
+    motivation: '意义的追寻与深层联结',
+    energy: '安静的反思与精神共鸣',
+    image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'INFP', name: '调停者', group: 'NF', 
+    color: 'from-green-500 via-emerald-400 to-teal-700', 
+    accent: 'bg-green-600', text: 'text-green-700', 
+    desc: '温柔的理想主义者，守护内心的净土。', 
+    traits: ['同情心', '创意', '善良', '纯真'],
+    motivation: '内在的和谐与自我表达',
+    energy: '沉浸于艺术与大自然',
+    image: 'https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ENFJ', name: '主人公', group: 'NF', 
+    color: 'from-teal-500 via-cyan-500 to-emerald-700', 
+    accent: 'bg-teal-600', text: 'text-teal-700', 
+    desc: '富有感染力的导师，引燃他人的热情。', 
+    traits: ['魅力', '共情', '负责', '鼓舞'],
+    motivation: '社群的成长与情感共鸣',
+    energy: '帮助他人与深度交流',
+    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ENFP', name: '竞选者', group: 'NF', 
+    color: 'from-lime-500 via-green-400 to-emerald-600', 
+    accent: 'bg-lime-600', text: 'text-lime-700', 
+    desc: '热爱自由的探索者，总能发现未知的精彩。', 
+    traits: ['热情', '独立', '想象力', '合群'],
+    motivation: '可能性的探索与情感表达',
+    energy: '新奇体验与灵感碰撞',
+    image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ISTJ', name: '物流师', group: 'SJ', 
+    color: 'from-slate-600 via-blue-600 to-slate-800', 
+    accent: 'bg-slate-600', text: 'text-slate-700', 
+    desc: '务实的守护者，用行动证明可靠。', 
+    traits: ['诚实', '尽责', '秩序', '务实'],
+    motivation: '传统的维护与任务的达成',
+    energy: '独处与井然有序的环境',
+    image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ISFJ', name: '守卫者', group: 'SJ', 
+    color: 'from-cyan-600 via-blue-500 to-indigo-700', 
+    accent: 'bg-cyan-600', text: 'text-cyan-700', 
+    desc: '细致体贴的照顾者，默默守护所爱。', 
+    traits: ['忠诚', '耐心', '温暖', '稳重'],
+    motivation: '给予的安全感与内心的宁静',
+    energy: '服务他人与温馨的氛围',
+    image: 'https://images.unsplash.com/photo-1512941937617-e93e59384816?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ESTJ', name: '总经理', group: 'SJ', 
+    color: 'from-zinc-600 via-slate-500 to-gray-800', 
+    accent: 'bg-zinc-600', text: 'text-zinc-700', 
+    desc: '秩序的捍卫者，卓越的组织管理者。', 
+    traits: ['组织力', '决断', '传统', '忠诚'],
+    motivation: '效率的提升与规则的落地',
+    energy: '高效工作与明确的成果',
+    image: 'https://images.unsplash.com/photo-1507208773393-40d9fc670acf?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ESFJ', name: '执政官', group: 'SJ', 
+    color: 'from-stone-600 via-slate-400 to-blue-700', 
+    accent: 'bg-stone-600', text: 'text-stone-700', 
+    desc: '温暖的社交中心，创造和谐的能量。', 
+    traits: ['热心', '受欢迎', '合作', '敏感'],
+    motivation: '他人的认可与和谐的联结',
+    energy: '聚会与照顾他人的时刻',
+    image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ISTP', name: '鉴赏家', group: 'SP', 
+    color: 'from-amber-600 via-orange-500 to-red-800', 
+    accent: 'bg-amber-600', text: 'text-amber-700', 
+    desc: '冷静的拆解者，精通各种工具的实验家。', 
+    traits: ['冷静', '实用', '勇敢', '适应'],
+    motivation: '技术的精进与感官的体验',
+    energy: '独自钻研与动手操作',
+    image: 'https://images.unsplash.com/photo-1581092921461-eab62e97a78e?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ISFP', name: '艺术家', group: 'SP', 
+    color: 'from-yellow-500 via-amber-400 to-orange-700', 
+    accent: 'bg-yellow-600', text: 'text-yellow-700', 
+    desc: '用感官捕捉美，活在当下的审美家。', 
+    traits: ['迷人', '敏感', '艺术感', '自由'],
+    motivation: '纯粹的美感与当下的真实',
+    energy: '自由创作与欣赏美景',
+    image: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ESTP', name: '企业家', group: 'SP', 
+    color: 'from-orange-600 via-red-500 to-pink-800', 
+    accent: 'bg-orange-600', text: 'text-orange-700', 
+    desc: '无畏的冒险家，在速度与风险中绽放。', 
+    traits: ['精力', '理性', '行动派', '幽默'],
+    motivation: '即时的挑战与掌控感',
+    energy: '冒险活动与社交场',
+    image: 'https://images.unsplash.com/photo-1502224562085-639556652f33?auto=format&fit=crop&w=600&q=80' 
+  },
+  { 
+    id: 'ESFP', name: '表演者', group: 'SP', 
+    color: 'from-rose-500 via-pink-400 to-red-700', 
+    accent: 'bg-rose-600', text: 'text-rose-700', 
+    desc: '生活的发光体，将每一秒变为派对。', 
+    traits: ['自发', '乐观', '表现力', '感官'],
+    motivation: '当下的快乐与他人的目光',
+    energy: '热闹派对与成为焦点',
+    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80' 
+  },
+];
+
+const MBTI_STEPS = [
+  { 
+    label: '能量来源', 
+    bgGradient: 'from-amber-50 via-orange-100 to-yellow-50', 
+    darkBgGradient: 'dark:from-amber-900 dark:via-orange-950 dark:to-yellow-900',
+    themeColor: 'bg-orange-500',
+    Totem: Sun,
+    options: [
+      { key: 'E', name: '外向 Extraversion', desc: '在人群中汲取动力', color: 'from-orange-400 to-amber-500', icon: <Sun size={32}/> },
+      { key: 'I', name: '内向 Introversion', desc: '在静谧中找回真我', color: 'from-indigo-400 to-blue-500', icon: <Wind size={32}/> }
+    ] 
+  },
+  { 
+    label: '感知方式', 
+    bgGradient: 'from-emerald-50 via-teal-100 to-cyan-50', 
+    darkBgGradient: 'dark:from-emerald-900 dark:via-teal-950 dark:to-cyan-900',
+    themeColor: 'bg-emerald-500',
+    Totem: Sparkles,
+    options: [
+      { key: 'S', name: '感觉 Sensing', desc: '立足于当下的事实', color: 'from-blue-400 to-cyan-500', icon: <Layers size={32}/> },
+      { key: 'N', name: '直觉 Intuition', desc: '洞察未来的可能性', color: 'from-emerald-400 to-green-500', icon: <Sparkles size={32}/> }
+    ] 
+  },
+  { 
+    label: '决策方式', 
+    bgGradient: 'from-slate-50 via-blue-100 to-indigo-50',
+    darkBgGradient: 'dark:from-slate-900 dark:via-blue-950 dark:to-indigo-900',
+    themeColor: 'bg-blue-500',
+    Totem: Brain, 
+    options: [
+      { key: 'T', name: '思维 Thinking', desc: '客观逻辑驱动决策', color: 'from-slate-400 to-gray-500', icon: <Target size={32}/> },
+      { key: 'F', name: '情感 Feeling', desc: '内心价值引导选择', color: 'from-rose-400 to-pink-500', icon: <Heart size={32}/> }
+    ] 
+  },
+  { 
+    label: '生活态度', 
+    bgGradient: 'from-violet-50 via-purple-100 to-fuchsia-50',
+    darkBgGradient: 'dark:from-violet-900 dark:via-purple-950 dark:to-fuchsia-900',
+    themeColor: 'bg-purple-500',
+    Totem: Compass,
+    options: [
+      { key: 'J', name: '判断 Judging', desc: '追求秩序与计划性', color: 'from-teal-400 to-cyan-600', icon: <CheckCircle2 size={32}/> },
+      { key: 'P', name: '知觉 Perceiving', desc: '热爱灵活与自发性', color: 'from-violet-400 to-purple-500', icon: <Star size={32}/> }
+    ] 
+  }
+];
+
+// --- 动画头像组件 (带加载状态) ---
+const MbtiAvatar = ({ mbti, mode = "avatar" }) => {
+  const [imgError, setImgError] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  if (!mbti) return null;
+
+  return (
+    <div className={`relative ${mode === 'avatar' ? 'w-full h-full' : 'w-72 h-72 mx-auto'} animate-gpu`}>
+      {mode === 'result' && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className={`w-full h-full rounded-full blur-[60px] opacity-40 animate-pulse ${mbti.color}`} />
+        </div>
+      )}
+      
+      {!imgError ? (
+        <>
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/20 dark:bg-black/20 backdrop-blur-sm rounded-3xl z-20">
+              <Loader2 className="animate-spin text-white opacity-80" size={32} />
+            </div>
+          )}
+          <img 
+            src={mbti.image} 
+            alt={mbti.name} 
+            className={`relative z-10 w-full h-full object-cover rounded-3xl drop-shadow-[0_20px_50px_rgba(0,0,0,0.2)] ${mode === 'avatar' ? '' : 'animate-float'} ${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`}
+            onLoad={() => setLoading(false)}
+            onError={() => setImgError(true)}
+          />
+        </>
+      ) : (
+        <div className={`w-full h-full rounded-3xl ${mbti.accent} flex items-center justify-center text-white font-black text-2xl`}>
+          {mbti.id.substring(0, 2)}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default function App() {
+  const [view, setView] = useState('mbti_step'); 
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selections, setSelections] = useState([]);
+  const [userMbti, setUserMbti] = useState(null);
+  const [mood, setMood] = useState('平静');
+  const [history, setHistory] = useState([]);
+  const [showMoodPicker, setShowMoodPicker] = useState(false);
+  const [showQuoteCreator, setShowQuoteCreator] = useState(false); 
+  const [selectedWord, setSelectedWord] = useState(null);
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [manualPerspective, setManualPerspective] = useState(null);
+  const [toast, setToast] = useState({ show: false, message: '' });
+  const [darkMode, setDarkMode] = useState(false);
+  const [user, setUser] = useState(null);
+  const [timeBlock, setTimeBlock] = useState(() => Math.floor(Date.now() / (1000 * 60 * 60 * 6)));
+  const [userQuotes, setUserQuotes] = useState([]); 
+
+  // --- Auth & Data Persistence ---
+  useEffect(() => {
+    // 1. Auth Init
+    const initAuth = async () => {
+      try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+      } catch (error) {
+        console.error("Auth Error:", error);
+      }
+    };
+    initAuth();
+
+    const unsubscribeAuth = onAuthStateChanged(auth, setUser);
+    return () => unsubscribeAuth();
+  }, []);
+
+  // 2. Fetch Profile
+  useEffect(() => {
+    if (!user) return;
+    const fetchProfile = async () => {
+      try {
+        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'main');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const type = MBTI_TYPES.find(t => t.id === data.mbtiId);
+          if (type) {
+            setUserMbti(type);
+            setView('home'); // Auto jump to home
+          }
+        }
+      } catch (error) {
+        console.error("Profile Fetch Error:", error);
+      }
+    };
+    fetchProfile();
+  }, [user]);
+
+  // 3. Subscribe to History
+  useEffect(() => {
+    if (!user) return;
+    const q = collection(db, 'artifacts', appId, 'users', user.uid, 'history');
+    
+    // Using simple query as per instructions (sorting in memory)
+    const unsubscribeHistory = onSnapshot(q, (snapshot) => {
+      const historyData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // Sort in memory by timestamp desc
+      historyData.sort((a, b) => {
+        const timeA = a.timestamp?.toMillis() || 0;
+        const timeB = b.timestamp?.toMillis() || 0;
+        return timeB - timeA;
+      });
+      setHistory(historyData);
+    }, (error) => {
+        console.error("History Sync Error:", error);
+    });
+
+    return () => unsubscribeHistory();
+  }, [user]);
+
+  // 4. Subscribe to User Quotes (新增：订阅用户创作金句)
+  useEffect(() => {
+    if (!user) return;
+    const q = collection(db, 'artifacts', appId, 'users', user.uid, 'user_quotes');
+    
+    const unsubscribeQuotes = onSnapshot(q, (snapshot) => {
+      const quotesData = snapshot.docs.map(doc => ({ ...doc.data() }));
+      // 将用户金句标记为 'i' 视角，以便融入逻辑
+      const formattedQuotes = quotesData.map(q => ({
+          en: q.en,
+          zh: q.zh || q.en, // 降级处理
+          dict: {}, // 用户金句暂无词典
+          perspective: 'i',
+          author: q.author || 'Me'
+      }));
+      setUserQuotes(formattedQuotes);
+    });
+
+    return () => unsubscribeQuotes();
+  }, [user]);
+
+  // 5. Update Time Block
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const newBlock = Math.floor(Date.now() / (1000 * 60 * 60 * 6));
+      setTimeBlock(prev => {
+        if (newBlock !== prev) return newBlock;
+        return prev;
+      });
+    }, 60000); 
+    return () => clearInterval(timer);
+  }, []);
+
+
+  const triggerHaptic = () => {
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+  };
+
+  const showToast = (message) => {
+    setToast({ show: true, message });
+    triggerHaptic();
+  };
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    showToast(darkMode ? "已切换至日间模式" : "已切换至深色模式");
+  };
+
+  const currentQuote = useMemo(() => {
+    const fallback = QUOTES_DB.NT[0];
+    if (!userMbti) return fallback;
+    
+    const systemQuotes = QUOTES_DB[userMbti.group] || QUOTES_DB.NT;
+    // 混合系统金句和用户创作金句
+    const allQuotes = [...systemQuotes, ...userQuotes];
+    
+    let perspective = 'i';
+    if (manualPerspective) {
+        perspective = manualPerspective;
+    } else {
+        const isHighStress = mood === '低落' || mood === '难过';
+        perspective = isHighStress ? 'you' : 'i';
+    }
+
+    // 如果有用户金句，优先展示 (当 quoteIndex 很大时)
+    // 或者简单地混合过滤
+    const matched = allQuotes.filter(q => q.perspective === perspective);
+    
+    // Fallback: 如果当前视角没有用户金句，尝试系统金句
+    if (matched.length === 0) {
+        const systemMatched = systemQuotes.filter(q => q.perspective === perspective);
+        if (systemMatched.length > 0) return systemMatched[quoteIndex % systemMatched.length];
+        return systemQuotes[0];
+    }
+    
+    const combinedIndex = quoteIndex + timeBlock;
+    // 反向取值，让新添加的（如果添加在后面）更容易被看到，或者直接取余
+    return matched[combinedIndex % matched.length];
+  }, [userMbti, mood, manualPerspective, quoteIndex, timeBlock, userQuotes]);
+
+  const handleStepSelect = async (key) => {
+    triggerHaptic();
+    const newSels = [...selections, key];
+    if (currentStep < 3) {
+      setSelections(newSels);
+      setCurrentStep(currentStep + 1);
+    } else {
+      const type = MBTI_TYPES.find(t => t.id === newSels.join(''));
+      setUserMbti(type);
+      setView('mbti_result');
+      showToast(`你的性格是 ${type.id}`);
+      
+      // Save Profile to Firestore
+      if (user) {
+        try {
+            await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'main'), {
+                mbtiId: type.id,
+                updatedAt: serverTimestamp()
+            });
+        } catch (e) {
+            console.error("Save Profile Error", e);
+        }
+      }
+    }
+  };
+
+  const resetProfile = async () => {
+      setView('mbti_step'); 
+      setCurrentStep(0); 
+      setSelections([]);
+      // Optional: clear profile from DB or just let it overwrite later
+      // For now, we just reset local state to allow re-selection
+  };
+
+  const handleSaveMood = async (moodObj, text) => {
+    if (!moodObj) return;
+    
+    const now = new Date();
+    // Optimistic UI update handled by listener, but we can do a toast
+    showToast("正在保存...");
+
+    if (user) {
+        try {
+            await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'history'), {
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                timestamp: serverTimestamp(), // For sorting
+                quote: String(currentQuote.en),
+                mood: String(moodObj.label),
+                note: String(text || ""),
+                color: String(moodObj.color)
+            });
+            showToast("心情记录保存成功");
+        } catch (e) {
+            console.error("Save Mood Error", e);
+            showToast("保存失败，请重试");
+        }
+    }
+    
+    setMood(moodObj.label);
+    setShowMoodPicker(false);
+  };
+
+  // 新增：保存用户创作的金句
+  const handleSaveQuote = async (content, translation, author) => {
+      if (!content) return;
+      showToast("正在铭刻...");
+      if (user) {
+          try {
+              await addDoc(collection(db, 'artifacts', appId, 'users', user.uid, 'user_quotes'), {
+                  en: content,
+                  zh: translation || content,
+                  author: author || "Me",
+                  timestamp: serverTimestamp()
+              });
+              showToast("金句已收入格言库");
+              // 强制刷新一下 QuoteIndex 让新金句有机会展示
+              setQuoteIndex(prev => prev + 1);
+          } catch (e) {
+              console.error("Save Quote Error", e);
+              showToast("保存失败");
+          }
+      }
+      setShowQuoteCreator(false);
+  };
+
+  const handleNextQuote = () => {
+    setQuoteIndex(prev => prev + 1);
+    triggerHaptic();
+    showToast("已切换激励金句");
+  };
+
+  const togglePerspective = () => {
+    setManualPerspective(prev => {
+        const next = prev === 'i' ? 'you' : (prev === 'you' ? null : 'i');
+        return next;
+    });
+    triggerHaptic();
+  };
+
+  const getPerspectiveName = () => {
+      if (manualPerspective === 'i') return '自我模式 (I)';
+      if (manualPerspective === 'you') return '教练模式 (You)';
+      const isHighStress = mood === '低落' || mood === '难过';
+      return isHighStress ? '教练模式 (智能推荐)' : '自我模式 (智能推荐)';
+  };
+
+  // 内部小组件：暗黑模式切换按钮
+  const ThemeToggleBtn = ({ size = "w-12 h-12", iconSize = 20 }) => (
+    <button 
+        onClick={toggleDarkMode} 
+        className={`${size} rounded-2xl flex items-center justify-center glass-card hover:bg-white/80 dark:hover:bg-black/50 transition-all active:scale-90 border border-white/20`}
+    >
+        {darkMode ? <Sun size={iconSize} className="text-amber-400" /> : <Moon size={iconSize} className="text-indigo-600" />}
+    </button>
+  );
+
+  return (
+    <div className={`min-h-screen font-sans relative transition-colors duration-500 ease-in-out ${darkMode ? 'dark bg-slate-900 text-white' : 'bg-slate-50 text-slate-900'}`}>
+      <GlobalStyles />
+      <Toast message={toast.message} show={toast.show} onClose={() => setToast({ ...toast, show: false })} />
+      
+      {/* 移除全局 fixed 按钮 */}
+
+      {/* 1. 测评页 */}
+      {view === 'mbti_step' && (
+        <div className={`min-h-screen p-6 pt-safe pb-safe flex flex-col items-center justify-center relative bg-gradient-to-br ${darkMode ? MBTI_STEPS[currentStep].darkBgGradient : MBTI_STEPS[currentStep].bgGradient} transition-all duration-1000`}>
+          
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-5 transition-transform duration-1000 transform scale-150 dark:opacity-10">
+             {React.createElement(MBTI_STEPS[currentStep].Totem, { size: 400, className: "animate-spin-slow dark:text-white" })}
+          </div>
+
+          <header className="w-full max-w-md mb-12 animate-in fade-in slide-in-from-top-4 duration-700 z-10">
+            <div className="flex items-center justify-between mb-8">
+              <button 
+                onClick={() => { if(currentStep > 0) { setCurrentStep(currentStep-1); setSelections(selections.slice(0, -1)); }}}
+                className={`w-12 h-12 rounded-full flex items-center justify-center ${currentStep === 0 ? 'opacity-0 pointer-events-none' : 'glass-card dark:text-white text-slate-500 hover:bg-white active:scale-90 transition-all'}`}
+              >
+                <ArrowLeft size={20} />
+              </button>
+              
+              <div className="flex gap-2">
+                {[0, 1, 2, 3].map(i => (
+                  <div key={i} className={`h-1.5 w-10 rounded-full transition-all duration-500 ${i <= currentStep ? MBTI_STEPS[currentStep].themeColor : 'bg-black/5 dark:bg-white/10'}`} />
+                ))}
+              </div>
+              
+              {/* 将切换按钮融入 Header 右侧 */}
+              <div className="w-12 flex justify-end">
+                 <ThemeToggleBtn size="w-10 h-10 rounded-full" iconSize={18} />
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <span className="text-[10px] font-black opacity-50 uppercase tracking-[0.3em] mb-2 block">Dimension 0{currentStep + 1}</span>
+              <h1 className="text-5xl font-black tracking-tighter drop-shadow-sm font-serif-sc">{MBTI_STEPS[currentStep].label}</h1>
+            </div>
+          </header>
+
+          <div className="w-full max-w-md flex flex-col gap-6 z-10">
+            {MBTI_STEPS[currentStep].options.map((opt, i) => (
+              <button 
+                key={opt.key}
+                onClick={() => handleStepSelect(opt.key)}
+                className="group relative p-8 glass-card glass-card-hover rounded-[40px] text-left transition-all duration-300 active:scale-95 overflow-hidden animate-gpu"
+              >
+                <div className={`absolute -right-10 -top-10 w-40 h-40 bg-gradient-to-br ${opt.color} rounded-full opacity-0 group-hover:opacity-20 blur-3xl transition-opacity duration-500`} />
+                
+                <div className="flex justify-between items-center mb-4 relative z-10">
+                  <div className={`w-16 h-16 rounded-3xl bg-gradient-to-br ${opt.color} flex items-center justify-center text-white shadow-lg group-hover:shadow-xl group-hover:rotate-6 transition-all duration-500`}>
+                    {opt.icon}
+                  </div>
+                  <span className="text-5xl font-black text-slate-200 dark:text-slate-700 group-hover:text-slate-300 dark:group-hover:text-slate-600 transition-colors italic uppercase">{opt.key}</span>
+                </div>
+                
+                <div className="relative z-10">
+                  <h3 className="text-2xl font-black mb-1 font-serif-sc">{opt.name.split(' ')[0]} <span className="text-sm font-bold opacity-50 uppercase tracking-widest font-sans">{opt.name.split(' ')[1]}</span></h3>
+                  <p className="opacity-60 font-medium">{opt.desc}</p>
+                </div>
+                
+                <div className="absolute bottom-8 right-8 opacity-30 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 duration-300">
+                  <ChevronRight size={24} />
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 2. 结果确认页 */}
+      {view === 'mbti_result' && userMbti && (
+        <div className={`min-h-screen bg-gradient-to-br ${userMbti.color} p-6 pt-safe pb-safe flex flex-col items-center justify-start overflow-y-auto relative overflow-hidden`}>
+          
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-white/20 rounded-full blur-[100px] animate-aurora mix-blend-overlay" />
+            <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] bg-purple-500/30 rounded-full blur-[120px] animate-aurora" style={{ animationDirection: 'reverse' }} />
+            <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+          </div>
+
+          {/* 结果页右上角独立切换按钮 */}
+          <div className="absolute top-6 right-6 z-50">
+             <ThemeToggleBtn size="w-12 h-12 rounded-full" />
+          </div>
+
+          <div className="w-full max-w-md relative z-10 animate-in zoom-in-95 duration-1000 pb-20 mt-10">
+            
+            <div className="mb-4">
+               <MbtiAvatar mbti={userMbti} mode="result" />
+            </div>
+
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4 border border-white/20 shadow-lg">
+                <Sparkles size={12} /> Personality Awake
+              </div>
+              <h2 className="text-8xl font-black text-white mb-2 tracking-tighter leading-none drop-shadow-xl">{userMbti.id}</h2>
+              <h3 className="text-3xl font-bold text-white mb-2 drop-shadow-md font-serif-sc">{userMbti.name}</h3>
+              <p className="text-white/90 font-medium px-8 drop-shadow-sm">{userMbti.desc}</p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-2 mb-10">
+              {userMbti.traits.map(trait => (
+                <span key={trait} className="trait-badge px-5 py-2 rounded-2xl text-white text-xs font-bold hover:scale-105 transition-transform cursor-default">
+                  #{trait}
+                </span>
+              ))}
+            </div>
+
+            <div className="space-y-4">
+              <div className="glass-card p-6 rounded-[32px] flex items-center gap-4 hover:bg-white/80 dark:hover:bg-black/50 transition-colors">
+                <div className={`w-12 h-12 rounded-2xl ${userMbti.accent} flex items-center justify-center text-white shadow-lg`}>
+                  <Lightbulb size={24} />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-[10px] font-black opacity-50 uppercase tracking-widest mb-0.5">Core Motivation</h4>
+                  <p className="font-bold leading-tight font-serif-sc">{userMbti.motivation}</p>
+                </div>
+              </div>
+
+              <div className="glass-card p-6 rounded-[32px] flex items-center gap-4 hover:bg-white/80 dark:hover:bg-black/50 transition-colors">
+                <div className={`w-12 h-12 rounded-2xl ${userMbti.accent} flex items-center justify-center text-white shadow-lg`}>
+                  <Battery size={24} />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-[10px] font-black opacity-50 uppercase tracking-widest mb-0.5">Energy Source</h4>
+                  <p className="font-bold leading-tight font-serif-sc">{userMbti.energy}</p>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setView('home')}
+              className="w-full mt-10 py-6 rounded-[32px] bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black text-xl shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 border-t border-white/20 hover:shadow-indigo-500/30"
+            >
+              进入激励空间 <Rocket size={24} />
+            </button>
+            
+            <button 
+              onClick={resetProfile}
+              className="w-full mt-6 text-white/60 font-bold text-xs uppercase tracking-widest hover:text-white transition-colors"
+            >
+              重新测评
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. 主页 */}
+      {view === 'home' && userMbti && (
+        <div className="min-h-screen flex flex-col relative animate-in fade-in duration-1000">
+          <div className={`absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b ${userMbti.color} opacity-20 blur-[120px] rounded-full -translate-y-1/2 animate-aurora`} />
+          
+          <nav className="flex justify-between items-center p-8 pt-safe z-20">
+            <div className="flex items-center gap-4 cursor-pointer" onClick={() => setView('mbti_result')}>
+              <div className={`w-14 h-14 p-0.5 rounded-2xl shadow-xl overflow-hidden ring-4 ring-white/50 bg-white/10 backdrop-blur-sm`}>
+                <MbtiAvatar mbti={userMbti} mode="avatar" />
+              </div>
+              <div className="hidden sm:block">
+                <p className="text-[10px] font-black opacity-50 uppercase tracking-widest">{userMbti.name}</p>
+                <p className="text-sm font-black leading-none">你好, {userMbti.id}</p>
+              </div>
+            </div>
+            
+            {/* 将切换按钮和历史按钮并排 */}
+            <div className="flex items-center gap-3">
+              <ThemeToggleBtn size="w-14 h-14" iconSize={24} />
+              <button onClick={() => setView('history')} className="w-14 h-14 glass-card rounded-2xl flex items-center justify-center opacity-60 hover:opacity-100 active:scale-90 transition-all">
+                <History size={24} />
+              </button>
+            </div>
+          </nav>
+
+          <main className="flex-1 flex flex-col justify-center px-10 z-10">
+            <div className="flex items-center gap-3 mb-8 animate-in slide-in-from-left duration-700">
+              <button 
+                onClick={togglePerspective} 
+                className="p-2 bg-amber-50 dark:bg-amber-900/30 rounded-lg transition-colors active:scale-90 glass-card"
+              >
+                {manualPerspective === 'you' ? <ToggleRight className="text-amber-500" size={20}/> : <ToggleLeft className="text-slate-400 dark:text-slate-200" size={20}/>}
+              </button>
+              <span className="text-[10px] font-black opacity-50 uppercase tracking-[0.2em]">
+                  {getPerspectiveName()}
+              </span>
+            </div>
+            
+            <div className="flex flex-wrap gap-x-3 gap-y-2 text-4xl md:text-5xl font-black leading-[1.1] tracking-tight relative font-serif-sc">
+              {currentQuote.en.split(' ').map((word, i) => (
+                <span 
+                  key={`${quoteIndex}-${i}`} 
+                  style={{ animationDelay: `${i * 0.05}s` }}
+                  onClick={() => {
+                    const clean = word.toLowerCase().replace(/[^a-z]/g, '');
+                    if (currentQuote.dict[clean]) setSelectedWord({ word: clean, def: currentQuote.dict[clean] });
+                  }} 
+                  className="text-reveal-item cursor-pointer hover:text-indigo-500 transition-colors underline decoration-transparent hover:decoration-indigo-400 decoration-4 underline-offset-8"
+                >
+                  {word}
+                </span>
+              ))}
+              <button 
+                onClick={handleNextQuote}
+                className="absolute -right-12 top-1/2 -translate-y-1/2 p-3 opacity-30 hover:opacity-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all active:rotate-180"
+              >
+                <RefreshCcw size={20} />
+              </button>
+            </div>
+            <p key={`zh-${quoteIndex}`} className="mt-10 text-xl opacity-60 font-medium leading-relaxed max-w-sm animate-in fade-in duration-500 font-serif-sc">
+              {currentQuote.zh}
+            </p>
+            {/* 新增作者显示 */}
+            {currentQuote.author && (
+              <p className="mt-4 text-sm opacity-50 font-medium italic animate-in fade-in slide-in-from-bottom-2 duration-700 delay-300">
+                — {currentQuote.author}
+              </p>
+            )}
+          </main>
+
+          <footer className="p-10 pb-safe z-20 flex gap-4">
+            <button 
+              onClick={() => setShowMoodPicker(true)} 
+              className="flex-1 py-6 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-[32px] font-black text-lg shadow-2xl active:scale-95 transition-transform flex items-center justify-center gap-3 animate-gpu"
+            >
+              记录此刻心情 <Activity size={24} />
+            </button>
+            
+            {/* 新增创作入口 */}
+            <button
+                onClick={() => setShowQuoteCreator(true)}
+                className="w-20 rounded-[32px] bg-white dark:bg-slate-800 shadow-xl flex items-center justify-center active:scale-95 transition-transform"
+            >
+                <PenLine size={24} className="text-slate-900 dark:text-white" />
+            </button>
+          </footer>
+
+          {selectedWord && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/10 backdrop-blur-md" onClick={() => setSelectedWord(null)}>
+              <div className="bg-white dark:bg-slate-800 w-full max-w-sm p-10 rounded-[60px] shadow-2xl animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+                <div className="flex justify-between items-center mb-8">
+                  <span className="text-[10px] font-black text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full uppercase tracking-widest">Meaning</span>
+                  <button onClick={() => setSelectedWord(null)} className="p-2 bg-slate-100 dark:bg-slate-700 rounded-full"><X size={18}/></button>
+                </div>
+                <h3 className="text-5xl font-black text-indigo-600 dark:text-indigo-400 mb-4 tracking-tighter">{selectedWord.word}</h3>
+                <p className="text-xl opacity-80 font-medium leading-relaxed font-serif-sc">{selectedWord.def}</p>
+                <button onClick={() => setSelectedWord(null)} className="mt-10 w-full py-5 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-3xl font-bold">了解了</button>
+              </div>
+            </div>
+          )}
+
+          {showMoodPicker && <MoodPicker onSave={handleSaveMood} onClose={() => setShowMoodPicker(false)} />}
+          {showQuoteCreator && <QuoteCreator onSave={handleSaveQuote} onClose={() => setShowQuoteCreator(false)} />}
+        </div>
+      )}
+
+      {/* 4. 足迹 */}
+      {view === 'history' && (
+        <div className="min-h-screen flex flex-col animate-in slide-in-from-right duration-500">
+          <header className="p-8 pt-safe flex items-center gap-6 sticky top-0 z-20 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+            <button onClick={() => setView('home')} className="p-4 rounded-2xl glass-card opacity-60 hover:opacity-100 active:scale-90 transition-all"><ArrowLeft size={24}/></button>
+            <h2 className="text-2xl font-black tracking-tight font-serif-sc">心路足迹</h2>
+            
+            {/* 将切换按钮放入 Header 右侧 */}
+            <div className="ml-auto">
+                <ThemeToggleBtn size="w-12 h-12 rounded-2xl" iconSize={20} />
+            </div>
+          </header>
+          <div className="p-8 pb-safe space-y-8 flex-1 overflow-y-auto">
+            {history.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 opacity-20">
+                <Clock size={80} />
+                <p className="mt-4 font-black uppercase tracking-widest text-xs">No records yet</p>
+              </div>
+            ) : (
+              history.map((item, i) => (
+                <div key={i} className="glass-card p-8 rounded-[48px] shadow-sm flex gap-6 animate-in slide-in-from-bottom duration-500 group hover:shadow-xl transition-all">
+                  <div className={`w-2 h-full rounded-full ${item.color} transition-all group-hover:scale-y-110`} />
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-[10px] font-black opacity-40 uppercase tracking-widest leading-none">{item.date} {item.time}</span>
+                      <span className="text-[10px] font-black bg-black/5 dark:bg-white/10 px-3 py-1 rounded-full">{item.mood}</span>
+                    </div>
+                    <p className="font-serif-sc font-medium mb-4 italic text-lg leading-snug opacity-90">"{item.quote}"</p>
+                    {item.note && <div className="text-sm bg-black/5 dark:bg-white/5 p-5 rounded-3xl font-medium border border-black/5 dark:border-white/5 opacity-80">{item.note}</div>}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 辅助组件：心情选择
+function MoodPicker({ onSave, onClose }) {
+  const [text, setText] = useState('');
+  const [selected, setSelected] = useState(null);
+  const moods = [
+    { icon: <Sun />, label: '开心', color: 'bg-yellow-100', text: 'text-yellow-600' },
+    { icon: <Smile />, label: '平静', color: 'bg-green-100', text: 'text-green-600' },
+    { icon: <Frown />, label: '低落', color: 'bg-indigo-100', text: 'text-indigo-600' },
+    { icon: <CloudRain />, label: '难过', color: 'bg-slate-100', text: 'text-slate-600' },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xl flex items-end p-4 pb-safe">
+      <div className="bg-white dark:bg-slate-800 w-full max-w-lg p-10 rounded-[60px] shadow-2xl animate-in slide-in-from-bottom duration-500">
+        <div className="flex justify-between items-center mb-10">
+          <h4 className="text-3xl font-black dark:text-white text-slate-900 font-serif-sc">记录此刻心境</h4>
+          <button onClick={onClose} className="p-4 bg-slate-100 dark:bg-slate-700 rounded-full opacity-60 hover:opacity-100 active:scale-90"><X size={20}/></button>
+        </div>
+        <div className="grid grid-cols-4 gap-4 mb-10">
+          {moods.map(m => (
+            <button 
+              key={m.label} 
+              onClick={() => setSelected(m)} 
+              className={`flex flex-col items-center gap-3 p-5 rounded-[40px] transition-all duration-300 ${selected?.label === m.label ? m.color + ' ring-4 ring-current scale-105 shadow-xl' : 'bg-slate-50 dark:bg-slate-700 opacity-50 hover:opacity-100'}`}
+            >
+              <div className={m.text}>{React.cloneElement(m.icon, { size: 32 })}</div>
+              <span className="text-[10px] font-black opacity-60 uppercase tracking-widest">{m.label}</span>
+            </button>
+          ))}
+        </div>
+        <textarea 
+          value={text} 
+          onChange={e => setText(e.target.value)} 
+          placeholder="有什么感触吗..." 
+          className="w-full h-40 p-6 bg-slate-50 dark:bg-slate-700 rounded-[40px] mb-8 outline-none focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-all font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-300 dark:placeholder:text-slate-500 resize-none" 
+        />
+        <button 
+          onClick={() => onSave(selected, text)} 
+          disabled={!selected} 
+          className={`w-full py-6 rounded-[32px] font-black text-xl transition-all duration-500 ${selected ? 'bg-slate-900 dark:bg-white dark:text-slate-900 text-white shadow-2xl active:scale-95' : 'bg-slate-100 dark:bg-slate-700 text-slate-300 dark:text-slate-500'}`}
+        >
+          保存足迹
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// 新增组件：格言创作
+function QuoteCreator({ onSave, onClose }) {
+    const [content, setContent] = useState('');
+    const [trans, setTrans] = useState('');
+    const [author, setAuthor] = useState('');
+
+    return (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xl flex items-center justify-center p-6 pb-safe">
+            <div className="bg-white dark:bg-slate-800 w-full max-w-lg p-8 rounded-[48px] shadow-2xl animate-in zoom-in duration-300 relative border border-white/10">
+                <button onClick={onClose} className="absolute top-6 right-6 p-2 bg-slate-100 dark:bg-slate-700 rounded-full opacity-60 hover:opacity-100"><X size={20}/></button>
+                
+                <div className="mb-8 text-center">
+                    <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Feather size={32} className="text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <h3 className="text-2xl font-black font-serif-sc dark:text-white">铭刻金句</h3>
+                    <p className="text-sm opacity-50 mt-1 dark:text-slate-300">添加到你的专属格言库</p>
+                </div>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="text-[10px] font-black opacity-40 uppercase tracking-widest block mb-2 dark:text-white">Content (English)</label>
+                        <input 
+                            value={content}
+                            onChange={e => setContent(e.target.value)}
+                            placeholder="Type your quote here..."
+                            className="w-full p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500 font-medium text-lg dark:text-white"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-[10px] font-black opacity-40 uppercase tracking-widest block mb-2 dark:text-white">Translation (中文)</label>
+                        <input 
+                            value={trans}
+                            onChange={e => setTrans(e.target.value)}
+                            placeholder="写下它的中文含义..."
+                            className="w-full p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500 font-serif-sc dark:text-white"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-[10px] font-black opacity-40 uppercase tracking-widest block mb-2 dark:text-white">Author</label>
+                        <input 
+                            value={author}
+                            onChange={e => setAuthor(e.target.value)}
+                            placeholder="Me"
+                            className="w-full p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border-none focus:ring-2 focus:ring-indigo-500 font-medium dark:text-white"
+                        />
+                    </div>
+                </div>
+
+                <button 
+                    onClick={() => onSave(content, trans, author)}
+                    disabled={!content}
+                    className="w-full mt-8 py-5 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-3xl font-black text-lg shadow-xl active:scale-95 transition-transform disabled:opacity-50"
+                >
+                    确认收录
+                </button>
+            </div>
+        </div>
+    );
+}
