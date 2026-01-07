@@ -180,59 +180,110 @@ const Toast = ({ message, show, onClose }) => {
   );
 };
 
-// --- QUOTES_DB (Expanded with Zen/Taoism/Mindfulness) ---
+// --- QUOTES_DB ---
 const QUOTES_DB = {
   SJ: [
-    // 守护者：秩序、知足、自然法则 (匹配 SJ 的稳定性)
-    { en: "Nature does not hurry, yet everything is accomplished.", zh: "大道至简，无为而无不为。（自然从不着急，却能完成一切。）", dict: { "hurry": "匆忙", "accomplished": "完成" }, perspective: "i", author: "Lao Tzu" },
-    { en: "He who is contented is rich.", zh: "知足者富。", dict: { "contented": "满足的" }, perspective: "you", author: "Lao Tzu" },
-    { en: "Be content with what you have; rejoice in the way things are.", zh: "安于现状，乐天知命。", dict: { "rejoice": "欣喜" }, perspective: "you", author: "Lao Tzu" },
-    { en: "Do your work, then step back. The only path to serenity.", zh: "功成身退，天之道也。", dict: { "serenity": "宁静" }, perspective: "i", author: "Lao Tzu" },
+    { en: "Tradition is not the worship of ashes, but the preservation of fire.", zh: "传统不是崇拜灰烬，而是传承火种。", dict: { "preservation": "保存/传承" }, perspective: "you", author: "Gustav Mahler" },
+    { en: "The best way out is always through.", zh: "最好的出路永远是穿过它。", dict: { "through": "穿过" }, perspective: "i", author: "Robert Frost" },
+    { en: "Discipline is the bridge between goals and accomplishment.", zh: "自律是连接目标与成就的桥梁。", dict: { "accomplishment": "成就" }, perspective: "you", author: "Jim Rohn" },
+    { en: "By failing to prepare, you are preparing to fail.", zh: "没有准备，就是在准备失败。", dict: { "fail": "失败" }, perspective: "you", author: "Benjamin Franklin" },
+    { en: "A place for everything, and everything in its place.", zh: "物归其位，各得其所。", dict: { "place": "位置" }, perspective: "i", author: "Benjamin Franklin" },
+    { en: "Perseverance is not a long race; it is many short races one after the other.", zh: "毅力不是一场长跑，而是接连不断的短跑。", dict: { "perseverance": "毅力" }, perspective: "i", author: "Walter Elliot" },
+    { en: "Those who cannot remember the past are condemned to repeat it.", zh: "那些无法记住过去的人注定要重蹈覆辙。", dict: { "condemned": "注定/被谴责" }, perspective: "you", author: "George Santayana" },
+    { en: "It does not matter how slowly you go as long as you do not stop.", zh: "只要不停下脚步，走得慢点也没关系。", dict: { "slowly": "缓慢地" }, perspective: "you", author: "Confucius" },
+    { en: "Management is doing things right; leadership is doing the right things.", zh: "管理是把事情做对，领导是做对的事情。", dict: { "management": "管理" }, perspective: "you", author: "Peter Drucker" },
+    { en: "Opportunities are usually disguised as hard work.", zh: "机会通常伪装成艰辛的工作。", dict: { "disguised": "伪装" }, perspective: "i", author: "Ann Landers" },
+    { en: "Faith is taking the first step even when you don't see the whole staircase.", zh: "信念是即使看不见整段楼梯，也要迈出第一步。", dict: { "faith": "信念" }, perspective: "i", author: "Martin Luther King, Jr." },
     { en: "Consistency is the foundation of excellence.", zh: "坚持是卓越的基石。", dict: { "excellence": "卓越" }, perspective: "i" },
     { en: "Order is the first law of heaven.", zh: "秩序是上天的第一条法则。", dict: { "heaven": "天堂" }, perspective: "you" },
+    { en: "Hard work beats talent when talent doesn't work hard.", zh: "当天赋不努力时，努力工作能击败天赋。", dict: { "talent": "天赋" }, perspective: "i", author: "Tim Notke" },
+    { en: "Respect the past, but build for the future.", zh: "尊重过去，但为未来建设。", dict: { "respect": "尊重" }, perspective: "you" },
+    { en: "Patience is bitter, but its fruit is sweet.", zh: "忍耐是苦涩的，但它的果实是甘甜的。", dict: { "patience": "耐心" }, perspective: "i", author: "Aristotle" },
+    { en: "Duty is the essence of character.", zh: "责任是品格的本质。", dict: { "essence": "本质" }, perspective: "you" },
     { en: "My word is my bond.", zh: "我的承诺千金不换。", dict: { "bond": "纽带/契约" }, perspective: "i" },
     { en: "Integrity is doing the right thing, even when no one is watching.", zh: "正直是在没人看见时也做正确的事。", dict: { "integrity": "正直" }, perspective: "i", author: "C.S. Lewis" },
-    { en: "History is a vast early warning system.", zh: "历史是一个巨大的早期预警系统。", dict: { "warning": "警告" }, perspective: "you", author: "Norman Cousins" }
+    { en: "History is a vast early warning system.", zh: "历史是一个巨大的早期预警系统。", dict: { "warning": "警告" }, perspective: "you", author: "Norman Cousins" },
+    { en: "Nature does not hurry, yet everything is accomplished.", zh: "大道至简，无为而无不为。", dict: { "hurry": "匆忙", "accomplished": "完成" }, perspective: "i", author: "Lao Tzu" },
+    { en: "He who is contented is rich.", zh: "知足者富。", dict: { "contented": "满足的" }, perspective: "you", author: "Lao Tzu" },
+    { en: "Be content with what you have; rejoice in the way things are.", zh: "安于现状，乐天知命。", dict: { "rejoice": "欣喜" }, perspective: "you", author: "Lao Tzu" },
+    { en: "Do your work, then step back. The only path to serenity.", zh: "功成身退，天之道也。", dict: { "serenity": "宁静" }, perspective: "i", author: "Lao Tzu" }
   ],
   SP: [
-    // 技艺者：活在当下、顺应变化、禅宗行动 (匹配 SP 的即兴)
+    { en: "Imperfect action is better than perfect inaction.", zh: "不完美的行动胜过完美的等待。", dict: { "inaction": "不作为" }, perspective: "you", author: "Harry Truman" },
+    { en: "Simplicity is the ultimate sophistication.", zh: "简约是极致的复杂。", dict: { "sophistication": "复杂/老练" }, perspective: "i", author: "Leonardo da Vinci" },
+    { en: "You can't use up creativity. The more you use, the more you have.", zh: "创造力是用不完的。你用得越多，拥有的就越多。", dict: { "creativity": "创造力" }, perspective: "you", author: "Maya Angelou" },
+    { en: "To live is the rarest thing in the world. Most people exist, that is all.", zh: "活着是世界上最罕见的事。大多数人只是存在，仅此而已。", dict: { "exist": "存在" }, perspective: "i", author: "Oscar Wilde" },
+    { en: "Dance like nobody's watching.", zh: "像没人看见一样跳舞。", dict: { "dance": "跳舞" }, perspective: "you" },
+    { en: "The purpose of art is washing the dust of daily life off our souls.", zh: "艺术的目的是洗去我们灵魂上的日常尘埃。", dict: { "dust": "尘埃" }, perspective: "i", author: "Pablo Picasso" },
+    { en: "The pain you feel today will be the strength you feel tomorrow.", zh: "今天的痛苦将是明天的力量。", dict: { "pain": "痛苦", "strength": "力量" }, perspective: "you" },
+    { en: "Every moment is a fresh beginning.", zh: "每一刻都是崭新的开始。", dict: { "fresh": "新鲜的" }, perspective: "i", author: "T.S. Eliot" },
+    { en: "Fall seven times, stand up eight.", zh: "七跌八起（百折不挠）。", dict: { "stand": "站立" }, perspective: "you", author: "Japanese Proverb" },
+    { en: "Turn your face to the sun and the shadows fall behind you.", zh: "面向阳光，阴影就会落在身后。", dict: { "shadows": "阴影" }, perspective: "you", author: "Maori Proverb" },
+    { en: "Action is the foundational key to all success.", zh: "行动是成功的基石。", dict: { "action": "行动" }, perspective: "you", author: "Pablo Picasso" },
+    { en: "Life is short, and it is here to be lived.", zh: "人生苦短，活在当下。", dict: { "lived": "活过的" }, perspective: "i", author: "Kate Winslet" },
+    { en: "Exercise is a celebration of what your body can do.", zh: "运动是对你身体潜能的庆祝。", dict: { "celebration": "庆祝" }, perspective: "you" },
+    { en: "Do one thing every day that scares you.", zh: "每天做一件让你害怕的事。", dict: { "scares": "惊吓" }, perspective: "you", author: "Eleanor Roosevelt" },
+    { en: "Life begins at the end of your comfort zone.", zh: "生活始于舒适圈的尽头。", dict: { "comfort": "舒适" }, perspective: "you", author: "Neale Donald Walsch" },
+    { en: "Adventure is worthwhile in itself.", zh: "冒险本身就是值得的。", dict: { "worthwhile": "值得的" }, perspective: "i", author: "Amelia Earhart" },
+    { en: "I am the master of my fate.", zh: "我是我命运的主宰。", dict: { "master": "主宰" }, perspective: "i", author: "William Ernest Henley" },
     { en: "When you walk, walk. When you eat, eat.", zh: "走路时走路，吃饭时吃饭。（活在当下）", dict: { "walk": "走路" }, perspective: "you", author: "Zen Proverb" },
     { en: "Empty your mind, be formless, shapeless — like water.", zh: "放空心思，无形无相，像水一样。", dict: { "formless": "无形的", "shapeless": "无状的" }, perspective: "you", author: "Bruce Lee" },
     { en: "Flow with whatever may happen, and let your mind be free.", zh: "顺应万变，心无挂碍。", dict: { "flow": "流动/顺应" }, perspective: "i", author: "Zhuangzi" },
     { en: "Sitting quietly, doing nothing, Spring comes, and the grass grows, by itself.", zh: "静坐无为，春来草自青。", dict: { "quietly": "静静地" }, perspective: "i", author: "Zen Haiku" },
-    { en: "Action is the foundational key to all success.", zh: "行动是成功的基石。", dict: { "action": "行动" }, perspective: "you", author: "Pablo Picasso" },
-    { en: "I live in the moment, for the moment.", zh: "我活在当下，为此刻而生。", dict: { "moment": "时刻" }, perspective: "i" },
-    { en: "Dance like nobody's watching.", zh: "像没人看见一样跳舞。", dict: { "dance": "跳舞" }, perspective: "you" },
     { en: "Leap, and the net will appear.", zh: "纵身一跃，安全网自会出现。", dict: { "leap": "跳跃" }, perspective: "you", author: "John Burroughs" },
     { en: "Just play. Have fun. Enjoy the game.", zh: "去玩，去开心，享受比赛。", dict: { "enjoy": "享受" }, perspective: "you", author: "Michael Jordan" }
   ],
   NF: [
-    // 理想主义者：慈悲、内心、连接、正念 (匹配 NF 的灵性)
+    { en: "What lies behind us and what lies before us are tiny matters compared to what lies within us.", zh: "比起我们内心的力量，身后和身前的事都微不足道。", dict: { "within": "在...里面" }, perspective: "you", author: "Ralph Waldo Emerson" },
+    { en: "We are all in the gutter, but some of us are looking at the stars.", zh: "我们都身在阴沟，但仍有人在仰望星空。", dict: { "gutter": "阴沟", "stars": "星星" }, perspective: "i", author: "Oscar Wilde" },
+    { en: "Happiness depends upon ourselves.", zh: "幸福取决于我们自己。", dict: { "happiness": "幸福" }, perspective: "i", author: "Aristotle" },
+    { en: "Spread love everywhere you go.", zh: "让你到的每个地方都充满爱。", dict: { "spread": "传播" }, perspective: "you", author: "Mother Teresa" },
+    { en: "Authenticity is the daily practice of letting go of who we think we’re supposed to be.", zh: "真实就是每天练习放下‘我们应该成为谁’的执念。", dict: { "authenticity": "真实性" }, perspective: "you", author: "Brené Brown" },
+    { en: "The heart has its reasons which reason knows nothing of.", zh: "心有其理，非理智所能知。", dict: { "reason": "理智/原因" }, perspective: "i", author: "Blaise Pascal" },
+    { en: "To love oneself is the beginning of a lifelong romance.", zh: "爱自己是一生浪漫的开始。", dict: { "romance": "浪漫" }, perspective: "i", author: "Oscar Wilde" },
+    { en: "This too shall pass.", zh: "这一切终将过去。", dict: { "pass": "过去/流逝" }, perspective: "you", author: "Persian Adage" },
+    { en: "Quiet the mind, and the soul will speak.", zh: "静下心来，灵魂自会说话。", dict: { "quiet": "安静", "soul": "灵魂" }, perspective: "you", author: "Ma Jaya Sati Bhagavati" },
+    { en: "The wound is the place where the Light enters you.", zh: "伤口是光进入你身体的地方。", dict: { "wound": "伤口", "light": "光" }, perspective: "you", author: "Rumi" },
+    { en: "Be the change you wish to see in the world.", zh: "成为你希望在世界上看到的改变。", dict: { "change": "改变" }, perspective: "i", author: "Mahatma Gandhi" },
+    { en: "You are enough just as you are.", zh: "你原本的样子就已经足够好了。", dict: { "enough": "足够的" }, perspective: "you", author: "Meghan Markle" },
+    { en: "Healing doesn't mean the damage never existed. It means the damage no longer controls our lives.", zh: "治愈并不意味着伤害从未存在，而是意味着伤害不再控制我们的生活。", dict: { "healing": "治愈", "controls": "控制" }, perspective: "i" },
+    { en: "In the midst of winter, I found there was, within me, an invincible summer.", zh: "在寒冬深处，我发现自己内心有一个不可战胜的夏天。", dict: { "invincible": "不可战胜的" }, perspective: "i", author: "Albert Camus" },
+    { en: "Breath is the anchor of the present moment.", zh: "呼吸是当下的锚。", dict: { "anchor": "锚" }, perspective: "you" },
+    { en: "Kindness is the language which the deaf can hear and the blind can see.", zh: "善良是聋子能听到、瞎子能看到的语言。", dict: { "kindness": "善良" }, perspective: "i", author: "Mark Twain" },
     { en: "To the mind that is still, the whole universe surrenders.", zh: "心静则万物归。", dict: { "surrenders": "投降/归顺" }, perspective: "i", author: "Lao Tzu" },
     { en: "Compassion is not a relationship between the healer and the wounded. It's a relationship between equals.", zh: "慈悲不是治疗者与伤者的关系，而是平等的连接。", dict: { "compassion": "慈悲" }, perspective: "you", author: "Pema Chödrön" },
     { en: "The way is not in the sky. The way is in the heart.", zh: "道不在天，道在心中。", dict: { "heart": "心" }, perspective: "i", author: "Buddha" },
     { en: "Smile, breathe and go slowly.", zh: "微笑，呼吸，慢慢来。", dict: { "breathe": "呼吸" }, perspective: "you", author: "Thich Nhat Hanh" },
-    { en: "Your soul knows the way. Follow it.", zh: "你的灵魂知晓前路，追随它。", dict: { "soul": "灵魂" }, perspective: "you" },
     { en: "Peace comes from within. Do not seek it without.", zh: "内心的平静源于内在，勿向外求。", dict: { "peace": "平静" }, perspective: "i", author: "Buddha" },
     { en: "Mindfulness is a way of befriending our experience.", zh: "正念是一种与我们的经历做朋友的方式。", dict: { "mindfulness": "正念" }, perspective: "i", author: "Jon Kabat-Zinn" },
-    { en: "Where there is love there is life.", zh: "有爱的地方就有生命。", dict: { "love": "爱" }, perspective: "you", author: "Mahatma Gandhi" },
-    { en: "The wound is the place where the Light enters you.", zh: "伤口是光进入你身体的地方。", dict: { "wound": "伤口", "light": "光" }, perspective: "you", author: "Rumi" }
+    { en: "Where there is love there is life.", zh: "有爱的地方就有生命。", dict: { "love": "爱" }, perspective: "you", author: "Mahatma Gandhi" }
   ],
   NT: [
-    // 理性者：智慧、自知、真理 (匹配 NT 的求索)
+    { en: "I think, therefore I am.", zh: "我思故我在。", dict: { "think": "思考" }, perspective: "i", author: "René Descartes" },
+    { en: "Science is organized knowledge. Wisdom is organized life.", zh: "科学是有组织的知识，智慧是有组织的生活。", dict: { "organized": "有组织的" }, perspective: "you", author: "Immanuel Kant" },
+    { en: "It always seems impossible until it's done.", zh: "在事情完成之前，它看上去总是看似不可能。", dict: { "impossible": "不可能的" }, perspective: "you", author: "Nelson Mandela" },
+    { en: "Everything should be made as simple as possible, but not simpler.", zh: "凡事应尽可能简单，但不能过于简单。", dict: { "simple": "简单的" }, perspective: "i", author: "Albert Einstein" },
+    { en: "We cannot solve our problems with the same thinking we used when we created them.", zh: "我们不能用制造问题时的思维去解决问题。", dict: { "solve": "解决" }, perspective: "you", author: "Albert Einstein" },
+    { en: "Strategy without tactics is the slowest route to victory.", zh: "没有战术的战略是通往胜利最慢的路。", dict: { "strategy": "战略", "tactics": "战术" }, perspective: "you", author: "Sun Tzu" },
+    { en: "Invest in yourself. It pays the best interest.", zh: "投资自己。这是回报率最高的投资。", dict: { "invest": "投资", "interest": "利息/利益" }, perspective: "you", author: "Benjamin Franklin" },
+    { en: "I have not failed. I've just found 10,000 ways that won't work.", zh: "我没有失败。我只是发现了10,000种行不通的方法。", dict: { "failed": "失败" }, perspective: "i", author: "Thomas A. Edison" },
+    { en: "He who has a why to live can bear almost any how.", zh: "知道为何而活的人，便能忍受任何生活。", dict: { "bear": "忍受" }, perspective: "you", author: "Friedrich Nietzsche" },
+    { en: "Knowledge is power. Innovation is key.", zh: "知识就是力量，创新是关键。", dict: { "innovation": "创新" }, perspective: "i" },
+    { en: "Work smarter, not just harder.", zh: "不仅要努力工作，更要聪明地工作。", dict: { "smarter": "更聪明" }, perspective: "you" },
+    { en: "The unexamined life is not worth living.", zh: "未经审视的人生不值得过。", dict: { "unexamined": "未经审查的" }, perspective: "i", author: "Socrates" },
+    { en: "Success is not final, failure is not fatal.", zh: "成功不是终点，失败也非末日。", dict: { "fatal": "致命的" }, perspective: "i", author: "Winston Churchill" },
+    { en: "Your time is limited, so don't waste it living someone else's life.", zh: "你的时间有限，所以不要浪费时间去过别人的生活。", dict: { "limited": "有限的" }, perspective: "you", author: "Steve Jobs" },
+    { en: "Obstacles are things a person sees when he takes his eyes off his goal.", zh: "障碍是当一个人将视线从目标移开时看到的东西。", dict: { "obstacles": "障碍" }, perspective: "you", author: "E. Joseph Cossman" },
+    { en: "First principles thinking is the only way to innovate.", zh: "第一性原理思维是创新的唯一途径。", dict: { "principles": "原理" }, perspective: "i", author: "Elon Musk" },
     { en: "Knowing others is intelligence; knowing yourself is true wisdom.", zh: "知人者智，自知者明。", dict: { "intelligence": "智慧/聪明", "wisdom": "大智慧" }, perspective: "you", author: "Lao Tzu" },
     { en: "The truth is not always beautiful, nor beautiful words the truth.", zh: "信言不美，美言不信。", dict: { "truth": "真理" }, perspective: "i", author: "Lao Tzu" },
-    { en: "To know that you do not know is the best.", zh: "知之为知之，不知为不知，是知也。（知不知，上。）", dict: { "best": "最好的" }, perspective: "i", author: "Lao Tzu" },
+    { en: "To know that you do not know is the best.", zh: "知之为知之，不知为不知，是知也。", dict: { "best": "最好的" }, perspective: "i", author: "Lao Tzu" },
     { en: "Mastering others is strength. Mastering yourself is true power.", zh: "胜人者有力，自胜者强。", dict: { "mastering": "掌控", "power": "力量" }, perspective: "you", author: "Lao Tzu" },
-    { en: "I think, therefore I am.", zh: "我思故我在。", dict: { "think": "思考" }, perspective: "i", author: "René Descartes" },
-    { en: "Knowledge is power. Innovation is key.", zh: "知识就是力量，创新是关键。", dict: { "innovation": "创新" }, perspective: "i" },
-    { en: "The unexamined life is not worth living.", zh: "未经审视的人生不值得过。", dict: { "unexamined": "未经审查的" }, perspective: "i", author: "Socrates" },
-    { en: "First principles thinking is the only way to innovate.", zh: "第一性原理思维是创新的唯一途径。", dict: { "principles": "原理" }, perspective: "i", author: "Elon Musk" },
     { en: "Change your thoughts and you change your world.", zh: "改变你的思想，你就改变了你的世界。", dict: { "thoughts": "思想" }, perspective: "you", author: "Norman Vincent Peale" }
   ]
 };
 
-// --- MBTI Types Data ---
+// --- 完整的 16 种 MBTI 类型数据 (已关联上传的文件名和 Unsplash 作为备用) ---
 const MBTI_TYPES = [
   { 
     id: 'INTJ', name: '建筑师', group: 'NT', 
@@ -242,7 +293,8 @@ const MBTI_TYPES = [
     traits: ['战略家', '独立', '理性', '高效'],
     motivation: '系统的完善与智力的挑战',
     energy: '深度独处与知识吸收',
-    image: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=600&q=80' 
+    // 优先使用本地路径，以便您下载后使用
+    image: '/images/Camera_XHS_17677777494791040g2sg319rtik1jne8g4a2u.jpg' 
   },
   { 
     id: 'INTP', name: '逻辑学家', group: 'NT', 
@@ -252,7 +304,7 @@ const MBTI_TYPES = [
     traits: ['分析力', '客观', '好奇', '原创'],
     motivation: '对未知领域的逻辑拆解',
     energy: '解决复杂问题与自由探索',
-    image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777564601040g2sg319rtik1jne7g4a2u.jpg' 
   },
   { 
     id: 'ENTJ', name: '指挥官', group: 'NT', 
@@ -262,7 +314,7 @@ const MBTI_TYPES = [
     traits: ['果断', '领导力', '自信', '意志'],
     motivation: '秩序的建立与目标的达成',
     energy: '征服挑战与高效执行',
-    image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777590841040g2sg319rtik1jne804a2u.jpg' 
   },
   { 
     id: 'ENTP', name: '辩论家', group: 'NT', 
@@ -272,7 +324,8 @@ const MBTI_TYPES = [
     traits: ['机智', '敏捷', '挑战者', '博学'],
     motivation: '创意的裂变与智力博弈',
     energy: '头脑风暴与观点交锋',
-    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=600&q=80' 
+    // 使用您指定的图片
+    image: '/images/1767784023885.jpg' 
   },
   { 
     id: 'INFJ', name: '提倡者', group: 'NF', 
@@ -282,7 +335,7 @@ const MBTI_TYPES = [
     traits: ['洞察力', '信念', '利他', '优雅'],
     motivation: '意义的追寻与深层联结',
     energy: '安静的反思与精神共鸣',
-    image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777640281040g2sg319rtik1jne9g4a2u.jpg' 
   },
   { 
     id: 'INFP', name: '调停者', group: 'NF', 
@@ -292,7 +345,7 @@ const MBTI_TYPES = [
     traits: ['同情心', '创意', '善良', '纯真'],
     motivation: '内在的和谐与自我表达',
     energy: '沉浸于艺术与大自然',
-    image: 'https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777660891040g2sg319rtik1jnea04a2u.jpg' 
   },
   { 
     id: 'ENFJ', name: '主人公', group: 'NF', 
@@ -302,7 +355,7 @@ const MBTI_TYPES = [
     traits: ['魅力', '共情', '负责', '鼓舞'],
     motivation: '社群的成长与情感共鸣',
     energy: '帮助他人与深度交流',
-    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777680421040g2sg319rtik1jneag4a2u.jpg' 
   },
   { 
     id: 'ENFP', name: '竞选者', group: 'NF', 
@@ -312,7 +365,7 @@ const MBTI_TYPES = [
     traits: ['热情', '独立', '想象力', '合群'],
     motivation: '可能性的探索与情感表达',
     energy: '新奇体验与灵感碰撞',
-    image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777700101040g2sg319rtik1jneb04a2u.jpg' 
   },
   { 
     id: 'ISTJ', name: '物流师', group: 'SJ', 
@@ -322,7 +375,7 @@ const MBTI_TYPES = [
     traits: ['诚实', '尽责', '秩序', '务实'],
     motivation: '传统的维护与任务的达成',
     energy: '独处与井然有序的环境',
-    image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777719501040g2sg319rtik1jnebg4a2u.jpg' 
   },
   { 
     id: 'ISFJ', name: '守卫者', group: 'SJ', 
@@ -332,7 +385,7 @@ const MBTI_TYPES = [
     traits: ['忠诚', '耐心', '温暖', '稳重'],
     motivation: '给予的安全感与内心的宁静',
     energy: '服务他人与温馨的氛围',
-    image: 'https://images.unsplash.com/photo-1512941937617-e93e59384816?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777739621040g2sg319rtik1jnec04a2u.jpg' 
   },
   { 
     id: 'ESTJ', name: '总经理', group: 'SJ', 
@@ -342,7 +395,7 @@ const MBTI_TYPES = [
     traits: ['组织力', '决断', '传统', '忠诚'],
     motivation: '效率的提升与规则的落地',
     energy: '高效工作与明确的成果',
-    image: 'https://images.unsplash.com/photo-1507208773393-40d9fc670acf?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777758711040g2sg319rtik1jnecg4a2u.jpg' 
   },
   { 
     id: 'ESFJ', name: '执政官', group: 'SJ', 
@@ -352,7 +405,7 @@ const MBTI_TYPES = [
     traits: ['热心', '受欢迎', '合作', '敏感'],
     motivation: '他人的认可与和谐的联结',
     energy: '聚会与照顾他人的时刻',
-    image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777779161040g2sg319rtik1jned04a2u.jpg' 
   },
   { 
     id: 'ISTP', name: '鉴赏家', group: 'SP', 
@@ -362,7 +415,7 @@ const MBTI_TYPES = [
     traits: ['冷静', '实用', '勇敢', '适应'],
     motivation: '技术的精进与感官的体验',
     energy: '独自钻研与动手操作',
-    image: 'https://images.unsplash.com/photo-1581092921461-eab62e97a78e?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777799831040g2sg319rtik1jnedg4a2u.jpg' 
   },
   { 
     id: 'ISFP', name: '艺术家', group: 'SP', 
@@ -372,7 +425,7 @@ const MBTI_TYPES = [
     traits: ['迷人', '敏感', '艺术感', '自由'],
     motivation: '纯粹的美感与当下的真实',
     energy: '自由创作与欣赏美景',
-    image: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777819601040g008319rtik337g104a2u.jpg' 
   },
   { 
     id: 'ESTP', name: '企业家', group: 'SP', 
@@ -382,7 +435,7 @@ const MBTI_TYPES = [
     traits: ['精力', '理性', '行动派', '幽默'],
     motivation: '即时的挑战与掌控感',
     energy: '冒险活动与社交场',
-    image: 'https://images.unsplash.com/photo-1502224562085-639556652f33?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777840571040g008319rtik337g1g4a2u.jpg' 
   },
   { 
     id: 'ESFP', name: '表演者', group: 'SP', 
@@ -392,7 +445,7 @@ const MBTI_TYPES = [
     traits: ['自发', '乐观', '表现力', '感官'],
     motivation: '当下的快乐与他人的目光',
     energy: '热闹派对与成为焦点',
-    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80' 
+    image: '/images/Camera_XHS_17677777860341040g008319rtik337g204a2u.jpg' 
   },
 ];
 
@@ -450,6 +503,10 @@ const MbtiAvatar = ({ mbti, mode = "avatar" }) => {
 
   if (!mbti) return null;
 
+  // 如果是在预览环境（blob url），尝试使用 Unsplash 图片作为 fallback
+  // 如果是在本地开发环境，则使用本地路径
+  const imgSrc = imgError ? `https://source.unsplash.com/400x400/?${mbti.group},abstract` : mbti.image;
+
   return (
     <div className={`relative ${mode === 'avatar' ? 'w-full h-full' : 'w-72 h-72 mx-auto'} animate-gpu`}>
       {mode === 'result' && (
@@ -458,7 +515,7 @@ const MbtiAvatar = ({ mbti, mode = "avatar" }) => {
         </div>
       )}
       
-      {!imgError ? (
+      {!imgError || (imgError && mode === 'avatar') ? (
         <>
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-white/20 dark:bg-black/20 backdrop-blur-sm rounded-3xl z-20">
@@ -630,8 +687,6 @@ export default function App() {
         perspective = isHighStress ? 'you' : 'i';
     }
 
-    // 如果有用户金句，优先展示 (当 quoteIndex 很大时)
-    // 或者简单地混合过滤
     const matched = allQuotes.filter(q => q.perspective === perspective);
     
     // Fallback: 如果当前视角没有用户金句，尝试系统金句
